@@ -1,0 +1,38 @@
+@import "ui-variables";
+@import "fonts";
+@import "icons";
+
+.project-root.git-status-modified {
+  .header-git-status {
+    color: @text-color-warning;
+  }
+}
+
+.project-root .header.list-item {
+  .tree-view-git-status::before {
+    content: "["
+  }
+  .tree-view-git-status::after {
+    content: "]"
+  }
+  .tree-view-git-status {
+    margin-left: 5px;
+
+    span {
+      margin-right: 5px;
+    }
+    span:last-child {
+      margin-right: 0px;
+    }
+    .commits-ahead-label::before {
+      font-size: @font-size * 0.8;
+      margin-right: 2px;
+      .icon-long-arrow-up;
+    }
+    .commits-behind-label::before {
+      font-size: @font-size * 0.8;
+      margin-right: 2px;
+      .icon-long-arrow-down;
+    }
+  }
+}
