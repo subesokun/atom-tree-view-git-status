@@ -178,14 +178,17 @@ module.exports = TreeViewGitStatus =
         rootPath = path.normalize root.directoryName.dataset.path
         if reset
           @treeViewRootsMap.set(rootPath, {root, customElements: {}})
-        repo = @repositoryMap.get rootPath
-        @doUpdateRootNode root, repo, rootPath
+        repoForRoot = null
+        @repositoryMap.forEach (repo, repoPath) ->
+          repoForRoot = repo if rootPath.indexOf(repoPath) is 0
+        @doUpdateRootNode root, repoForRoot, rootPath if repoForRoot?
 
   updateRootForRepo: (repo) ->
     if @treeView? and @treeViewRootsMap?
-      rootPath = path.normalize repo.getWorkingDirectory()
-      root = @treeViewRootsMap.get(rootPath).root
-      @doUpdateRootNode root, repo, rootPath if root?
+      repoPath = path.normalize repo.getWorkingDirectory()
+      @treeViewRootsMap.forEach (root, rootPath) =>
+        if rootPath.indexOf(repoPath) is 0
+          @doUpdateRootNode root.root, repo, rootPath if root.root?
 
   doUpdateRootNode: (root, repo, rootPath) ->
     customElements = @treeViewRootsMap.get(rootPath).customElements
