@@ -179,21 +179,34 @@ module.exports = TreeViewGitStatus =
         if reset
           @treeViewRootsMap.set(rootPath, {root, customElements: {}})
         repoForRoot = null
+        repoSubPath = null
         @repositoryMap.forEach (repo, repoPath) ->
-          repoForRoot = repo if rootPath.indexOf(repoPath) is 0
-        @doUpdateRootNode root, repoForRoot, rootPath if repoForRoot?
+          if rootPath.indexOf(repoPath) is 0
+            repoSubPath = path.relative repoPath, rootPath
+            repoForRoot = repo
+        if repoForRoot?
+          @doUpdateRootNode root, repoForRoot, rootPath, repoSubPath
 
   updateRootForRepo: (repo) ->
     if @treeView? and @treeViewRootsMap?
       repoPath = path.normalize repo.getWorkingDirectory()
       @treeViewRootsMap.forEach (root, rootPath) =>
         if rootPath.indexOf(repoPath) is 0
-          @doUpdateRootNode root.root, repo, rootPath if root.root?
+          repoSubPath = path.relative repoPath, rootPath
+          @doUpdateRootNode root.root, repo, rootPath, repoSubPath if root.root?
 
-  doUpdateRootNode: (root, repo, rootPath) ->
+  doUpdateRootNode: (root, repo, rootPath, repoSubPath) ->
     customElements = @treeViewRootsMap.get(rootPath).customElements
 
-    if @showProjectModifiedStatus and repo? and @isRepoModified repo
+    isModified = false
+    if @showProjectModifiedStatus and repo?
+      if repoSubPath isnt '' and repo.getDirectoryStatus(repoSubPath) isnt 0
+        isModified = true
+      else if repoSubPath is ''
+        # Workaround for the issue that 'getDirectoryStatus' doesn't work
+        # on the repository root folder
+        isModified = @isRepoModified repo
+    if isModified
       root.classList.add('status-modified')
     else
       root.classList.remove('status-modified')
