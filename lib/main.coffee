@@ -160,8 +160,14 @@ module.exports = TreeViewGitStatus =
     @repositorySubscriptions = new CompositeDisposable
     @repositoryMap = new Map()
     for repo in atom.project.getRepositories() when repo?
-      @repositoryMap.set(path.normalize(repo.getWorkingDirectory()), repo)
-      @subscribeToRepo repo
+      # Validate repo to avoid errors from thirdparty repo objects
+      if repo.getShortHead? and
+          typeof repo.getShortHead() is 'string' and
+          repo.getWorkingDirectory? and
+          typeof repo.getWorkingDirectory() is 'string' and
+          repo.statuses?
+        @repositoryMap.set(path.normalize(repo.getWorkingDirectory()), repo)
+        @subscribeToRepo repo
 
   subscribeToRepo: (repo) ->
     @repositorySubscriptions.add repo.onDidChangeStatuses =>
@@ -229,7 +235,9 @@ module.exports = TreeViewGitStatus =
   generateGitStatusText: (container, repo) ->
     display = false
     head = repo?.getShortHead()
-    {ahead, behind} = repo.getCachedUpstreamAheadBehindCount() ? {}
+    ahead = behind = 0
+    if repo.getCachedUpstreamAheadBehindCount?
+      {ahead, behind} = repo.getCachedUpstreamAheadBehindCount() ? {}
     if @showBranchLabel and head?
       branchLabel = document.createElement('span')
       branchLabel.classList.add('branch-label')
