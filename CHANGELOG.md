@@ -1,3 +1,10 @@
+## v0.1.2 (2015-07-18)
+
+## :bug: Bug Fixes
+- Fix handling of none GitRepositories (#6)
+- Add repo sanity checks (#7)
+
+
 ## v0.1.1 (2015-05-26)
 
 ## :bug: Bug Fixes
