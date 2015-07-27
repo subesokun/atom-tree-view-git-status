@@ -1,5 +1,6 @@
 {CompositeDisposable} = require 'atom'
 path = require 'path'
+TreeViewGitStatusTooltip = require './tooltip'
 
 module.exports = TreeViewGitStatus =
   config:
@@ -55,6 +56,7 @@ module.exports = TreeViewGitStatus =
         @toggle()
 
     @subscriptions = new CompositeDisposable
+    @treeViewRootsMap = new Map
 
     @toggle() if atom.config.get 'tree-view-git-status.autoToggle'
 
@@ -62,9 +64,9 @@ module.exports = TreeViewGitStatus =
     @subscriptions?.dispose()
     @repositorySubscriptions?.dispose()
     @subscriptionsOfCommands?.dispose()
-    @clearRoots() if @treeView?
+    @clearTreeViewRootMap() if @treeView?
     @repositoryMap?.clear()
-    @treeViewRootsMap?.clear()
+    @treeViewRootsMap = null
     @subscriptions = null
     @treeView = null
     @repositorySubscriptions = null
@@ -79,8 +81,7 @@ module.exports = TreeViewGitStatus =
       @toggled = false
       @subscriptions?.dispose()
       @repositorySubscriptions?.dispose()
-      @clearRoots() if @treeView?
-      @treeViewRootsMap?.clear()
+      @clearTreeViewRootMap() if @treeView?
       @repositoryMap?.clear()
     else
       @toggled = true
@@ -100,13 +101,17 @@ module.exports = TreeViewGitStatus =
       .catch (error) ->
         console.error error, error.stack
 
-  clearRoots: ->
-    for root in @roots
-      rootPath = path.normalize root.directoryName.dataset.path
-      root.classList.remove('status-modified')
-      customElements = @treeViewRootsMap.get(rootPath).customElements
+  clearTreeViewRootMap: ->
+    @treeViewRootsMap?.forEach (root, rootPath) ->
+      root.root?.classList?.remove('status-modified')
+      customElements = root.customElements
       if customElements?.headerGitStatus?
-        root.header.removeChild(customElements.headerGitStatus)
+        root.root?.header?.removeChild(customElements.headerGitStatus)
+        customElements.headerGitStatus = null
+      if customElements?.tooltip?
+        customElements.tooltip.destruct()
+        customElements.tooltip = null
+    @treeViewRootsMap?.clear()
 
   subscribeUpdateConfigurations: ->
     atom.config.observe 'tree-view-git-status.showProjectModifiedStatus',
@@ -177,9 +182,8 @@ module.exports = TreeViewGitStatus =
 
   updateRoots: (reset) ->
     if @treeView?
-      if not @treeViewRootsMap? then reset = true
       @roots = @treeView.roots
-      @treeViewRootsMap = new Map() if reset
+      @clearTreeViewRootMap() if reset
       for root in @roots
         rootPath = path.normalize root.directoryName.dataset.path
         if reset
@@ -203,7 +207,6 @@ module.exports = TreeViewGitStatus =
 
   doUpdateRootNode: (root, repo, rootPath, repoSubPath) ->
     customElements = @treeViewRootsMap.get(rootPath).customElements
-
     isModified = false
     if @showProjectModifiedStatus and repo?
       if repoSubPath isnt '' and repo.getDirectoryStatus(repoSubPath) isnt 0
@@ -231,6 +234,9 @@ module.exports = TreeViewGitStatus =
     else if customElements.headerGitStatus?
       root.header.removeChild(customElements.headerGitStatus)
       customElements.headerGitStatus = null
+
+    if repo? and not customElements.tooltip?
+      customElements.tooltip = new TreeViewGitStatusTooltip(root, repo)
 
   generateGitStatusText: (container, repo) ->
     display = false

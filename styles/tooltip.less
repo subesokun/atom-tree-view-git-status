@@ -1,0 +1,33 @@
+.tooltip .tooltip-inner {
+
+  .git-status-tooltip {
+    display: flex;
+    flex-flow: row nowrap;
+    text-align: left;
+
+    .titles-container {
+      display: flex;
+      flex-flow: column nowrap;
+      text-align: right;
+      padding-right: 5px;
+
+      .title {
+        flex: 1 auto;
+        opacity: 0.8;
+        line-height: 1.5em;
+      }
+      .title::after {
+        content: ":"
+      }
+    }
+
+    .items-container {
+      display: flex;
+      flex-flow: column nowrap;
+
+      .item {
+        line-height: 1.5em;
+      }
+    }
+  }
+}
