@@ -1,6 +1,10 @@
 # Tree View Git Status package
 
+[![Build Status](https://travis-ci.org/subesokun/atom-tree-view-git-status.svg?branch=master)](https://travis-ci.org/subesokun/atom-tree-view-git-status)
+
 Show the Git repository status in the Atom tree-view.
+
+### Screenshots
 
 ![tree-view-git-status Screenshot](https://github.com/subesokun/atom-tree-view-git-status/blob/master/screenshot.png?raw=true)
 
