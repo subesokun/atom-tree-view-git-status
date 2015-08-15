@@ -9,7 +9,10 @@
     "atom": ">=0.184.0"
   },
   "dependencies": {
+    "fs-plus": "^2.8.1",
+    "temp": "^0.8.3"
   },
+  "devDependencies": {},
   "keywords": [
     "tree-view",
     "git",

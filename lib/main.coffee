@@ -1,5 +1,6 @@
 {CompositeDisposable} = require 'atom'
 path = require 'path'
+fs = require 'fs-plus'
 TreeViewGitStatusTooltip = require './tooltip'
 
 module.exports = TreeViewGitStatus =
@@ -35,6 +36,7 @@ module.exports = TreeViewGitStatus =
   showCommitsBehindLabel: true
   subscriptionsOfCommands: null
   active: false
+  ignoredRepositories: null
 
   activate: ->
     @active = true
@@ -57,6 +59,7 @@ module.exports = TreeViewGitStatus =
 
     @subscriptions = new CompositeDisposable
     @treeViewRootsMap = new Map
+    @ignoredRepositories = new Map
 
     @toggle() if atom.config.get 'tree-view-git-status.autoToggle'
 
@@ -66,12 +69,14 @@ module.exports = TreeViewGitStatus =
     @subscriptionsOfCommands?.dispose()
     @clearTreeViewRootMap() if @treeView?
     @repositoryMap?.clear()
+    @ignoredRepositories?.clear()
     @treeViewRootsMap = null
     @subscriptions = null
     @treeView = null
     @repositorySubscriptions = null
     @treeViewRootsMap = null
     @repositoryMap = null
+    @ignoredRepositories = null
     @active = false
     @toggled = false
 
@@ -170,7 +175,8 @@ module.exports = TreeViewGitStatus =
           typeof repo.getShortHead() is 'string' and
           repo.getWorkingDirectory? and
           typeof repo.getWorkingDirectory() is 'string' and
-          repo.statuses?
+          repo.statuses? and
+          not @isRepositoryIgnored(repo.getWorkingDirectory())
         @repositoryMap.set(path.normalize(repo.getWorkingDirectory()), repo)
         @subscribeToRepo repo
 
@@ -190,8 +196,10 @@ module.exports = TreeViewGitStatus =
           @treeViewRootsMap.set(rootPath, {root, customElements: {}})
         repoForRoot = null
         repoSubPath = null
+        rootPathHasGitFolder = fs.existsSync(path.join(rootPath, '.git'))
         @repositoryMap.forEach (repo, repoPath) ->
-          if rootPath.indexOf(repoPath) is 0
+          if not repoForRoot? and ((rootPath is repoPath) or
+              (rootPath.indexOf(repoPath) is 0 and not rootPathHasGitFolder))
             repoSubPath = path.relative repoPath, rootPath
             repoForRoot = repo
         if repoForRoot?
@@ -272,3 +280,11 @@ module.exports = TreeViewGitStatus =
 
   isRepoModified: (repo) ->
     return Object.keys(repo.statuses).length > 0
+
+  ignoreRepository: (repoPath) ->
+    @ignoredRepositories.set(repoPath, true)
+    @subscribeUpdateRepositories()
+    @updateRoots(true)
+
+  isRepositoryIgnored: (repoPath) ->
+    return @ignoredRepositories.has(repoPath)
