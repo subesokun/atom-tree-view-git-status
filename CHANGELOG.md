@@ -1,3 +1,8 @@
+## v0.2.0 (due-to-date)
+
+## Features
+- Add tooltip to project root tree node
+
 ## v0.1.2 (2015-07-18)
 
 ## :bug: Bug Fixes
