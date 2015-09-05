@@ -1,7 +1,10 @@
-## v0.2.0 (due-to-date)
+## v0.2.0 (2015-09-05)
 
 ## Features
 - Add tooltip to project root tree node
+
+## :bug: Bug Fixes
+- Fix issue with symlinks on Mac (e0cffa6)
 
 ## v0.1.2 (2015-07-18)
 
