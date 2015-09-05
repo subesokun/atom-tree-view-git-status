@@ -177,7 +177,7 @@ module.exports = TreeViewGitStatus =
           typeof repo.getWorkingDirectory() is 'string' and
           repo.statuses? and
           not @isRepositoryIgnored(repo.getWorkingDirectory())
-        @repositoryMap.set(path.normalize(repo.getWorkingDirectory()), repo)
+        @repositoryMap.set @normalizePath(repo.getWorkingDirectory()), repo
         @subscribeToRepo repo
 
   subscribeToRepo: (repo) ->
@@ -191,7 +191,7 @@ module.exports = TreeViewGitStatus =
       @roots = @treeView.roots
       @clearTreeViewRootMap() if reset
       for root in @roots
-        rootPath = path.normalize root.directoryName.dataset.path
+        rootPath = @normalizePath root.directoryName.dataset.path
         if reset
           @treeViewRootsMap.set(rootPath, {root, customElements: {}})
         repoForRoot = null
@@ -207,7 +207,7 @@ module.exports = TreeViewGitStatus =
 
   updateRootForRepo: (repo) ->
     if @treeView? and @treeViewRootsMap?
-      repoPath = path.normalize repo.getWorkingDirectory()
+      repoPath = @normalizePath repo.getWorkingDirectory()
       @treeViewRootsMap.forEach (root, rootPath) =>
         if rootPath.indexOf(repoPath) is 0
           repoSubPath = path.relative repoPath, rootPath
@@ -288,3 +288,6 @@ module.exports = TreeViewGitStatus =
 
   isRepositoryIgnored: (repoPath) ->
     return @ignoredRepositories.has(repoPath)
+
+  normalizePath: (repoPath) ->
+    return fs.realpathSync path.normalize repoPath
