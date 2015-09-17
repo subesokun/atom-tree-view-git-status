@@ -1,3 +1,8 @@
+# v0.2.1 (2015-09-17)
+
+## :bug: Bug Fixes
+- Critical fix for the lstat issue ([#9](https://github.com/subesokun/atom-tree-view-git-status/issues/9), [#11](https://github.com/subesokun/atom-tree-view-git-status/issues/11))
+
 # v0.2.0 (2015-09-05)
 
 ## Features
