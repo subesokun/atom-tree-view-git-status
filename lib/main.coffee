@@ -290,4 +290,14 @@ module.exports = TreeViewGitStatus =
     return @ignoredRepositories.has(repoPath)
 
   normalizePath: (repoPath) ->
-    return fs.realpathSync path.normalize repoPath
+    normPath = path.normalize repoPath
+    if process.platform is 'darwin'
+      # For some reason the paths returned by the tree-view and
+      # git-utils are sometimes "different" on Darwin platforms.
+      # E.g. /private/var/... (real path) !== /var/... (symlink)
+      # For now just strip away the /private part.
+      # Using the fs.realPath function to avoid this issue isn't such a good
+      # idea because it tries to access that path and in case it's not
+      # existing path an error gets thrown + it's slow due to fs access.
+      normPath = normPath.replace(/^\/private/, '')
+    return normPath

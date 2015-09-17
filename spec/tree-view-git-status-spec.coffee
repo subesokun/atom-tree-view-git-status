@@ -55,6 +55,8 @@ describe "TreeViewGitStatus", ->
 
     for root in treeView.roots
       rootPath = gitStatus.normalizePath root.directoryName.dataset.path
+      # Makes debugging easier if we also compare the keys directly
+      expect(gitStatus.repositoryMap.keys().next().value).toBe(rootPath)
       expect(gitStatus.repositoryMap.has(rootPath)).toBe(true)
       expect(root.header.querySelector('span.tree-view-git-status')).toExist()
 
