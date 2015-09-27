@@ -1,3 +1,8 @@
+# v0.2.2 (2015-09-27)
+
+## :bug: Bug Fixes
+- Add Git repository sanity checks ([#12](https://github.com/subesokun/atom-tree-view-git-status/issues/12))
+
 # v0.2.1 (2015-09-17)
 
 ## :bug: Bug Fixes
