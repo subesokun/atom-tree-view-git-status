@@ -64,10 +64,13 @@ module.exports = class TreeViewGitStatusTooltip
 
   onMouseEnter: ->
     @destroyTooltip()
-    @tooltip = atom.tooltips.add @root.header,
-      title: @generateTooltipContent()
-      html: true
-      placement: 'bottom'
+    # Validate reposiotry to make sure that it hasn't been destroyed
+    # in the meantime
+    if @repo?.repo?
+      @tooltip = atom.tooltips.add @root.header,
+        title: @generateTooltipContent()
+        html: true
+        placement: 'bottom'
 
   shortenPath: (dirPath) ->
     # Shorten path if possible

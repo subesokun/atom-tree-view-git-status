@@ -203,6 +203,8 @@ module.exports = TreeViewGitStatus =
             repoSubPath = path.relative repoPath, rootPath
             repoForRoot = repo
         if repoForRoot?
+          if not repoForRoot?.repo?
+            repoForRoot = null
           @doUpdateRootNode root, repoForRoot, rootPath, repoSubPath
 
   updateRootForRepo: (repo) ->
@@ -211,6 +213,8 @@ module.exports = TreeViewGitStatus =
       @treeViewRootsMap.forEach (root, rootPath) =>
         if rootPath.indexOf(repoPath) is 0
           repoSubPath = path.relative repoPath, rootPath
+          if not repo?.repo?
+            repo = null
           @doUpdateRootNode root.root, repo, rootPath, repoSubPath if root.root?
 
   doUpdateRootNode: (root, repo, rootPath, repoSubPath) ->
