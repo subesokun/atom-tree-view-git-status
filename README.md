@@ -1,6 +1,6 @@
 # Tree View Git Status package
 
-[![Build Status](https://travis-ci.org/subesokun/atom-tree-view-git-status.svg?branch=master)](https://travis-ci.org/subesokun/atom-tree-view-git-status)
+[![Build Status OSX & Linux](https://travis-ci.org/subesokun/atom-tree-view-git-status.svg?branch=master)](https://travis-ci.org/subesokun/atom-tree-view-git-status) [![Build Status Windows](https://ci.appveyor.com/api/projects/status/github/subesokun/atom-tree-view-git-status?branch=master&svg=true)](https://ci.appveyor.com/project/subesokun/atom-tree-view-git-status)
 
 Show the Git repository status in the Atom tree-view.
 
