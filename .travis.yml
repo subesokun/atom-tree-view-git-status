@@ -6,7 +6,9 @@ notifications:
     on_failure: change
     
 env:
-  - ATOM_CHANNEL=stable
-  - ATOM_CHANNEL=beta
+  - TRAVIS_OS_NAME=osx ATOM_CHANNEL=stable
+  - TRAVIS_OS_NAME=osx ATOM_CHANNEL=beta
+  - TRAVIS_OS_NAME=linux ATOM_CHANNEL=stable
+  - TRAVIS_OS_NAME=linux ATOM_CHANNEL=beta
 
 script: 'curl -s https://raw.githubusercontent.com/atom/ci/master/build-package.sh | sh'
