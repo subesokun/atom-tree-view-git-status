@@ -108,7 +108,7 @@ module.exports = TreeViewGitStatus =
 
   clearTreeViewRootMap: ->
     @treeViewRootsMap?.forEach (root, rootPath) ->
-      root.root?.classList?.remove('status-modified')
+      root.root?.classList?.remove('status-modified', 'status-added')
       customElements = root.customElements
       if customElements?.headerGitStatus?
         root.root?.header?.removeChild(customElements.headerGitStatus)
