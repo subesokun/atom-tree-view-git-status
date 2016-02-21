@@ -219,18 +219,16 @@ module.exports = TreeViewGitStatus =
 
   doUpdateRootNode: (root, repo, rootPath, repoSubPath) ->
     customElements = @treeViewRootsMap.get(rootPath).customElements
-    isModified = false
     if @showProjectModifiedStatus and repo?
-      if repoSubPath isnt '' and repo.getDirectoryStatus(repoSubPath) isnt 0
-        isModified = true
-      else if repoSubPath is ''
+      if repoSubPath isnt ''
+        status = repo.getDirectoryStatus(repoSubPath)
+      else
         # Workaround for the issue that 'getDirectoryStatus' doesn't work
         # on the repository root folder
-        isModified = @isRepoModified repo
-    if isModified
-      root.classList.add('status-modified')
-    else
-      root.classList.remove('status-modified')
+        status = @getRootDirectoryStatus repo
+    convStatus = @convertDirectoryStatus repo, status
+    root.classList.remove('status-modified', 'status-added')
+    root.classList.add("status-#{convStatus}") if convStatus?
 
     showHeaderGitStatus = @showBranchLabel or @showCommitsAheadLabel or
         @showCommitsBehindLabel
@@ -282,8 +280,19 @@ module.exports = TreeViewGitStatus =
     container.appendChild commitsAhead if commitsAhead?
     container.appendChild commitsBehind if commitsBehind?
 
-  isRepoModified: (repo) ->
-    return Object.keys(repo.statuses).length > 0
+  convertDirectoryStatus: (repo, status) ->
+    newStatus = null
+    if repo.isStatusModified(status)
+      newStatus = 'modified'
+    else if repo.isStatusNew(status)
+      newStatus = 'added'
+    return newStatus
+
+  getRootDirectoryStatus: (repo) ->
+    directoryStatus = 0
+    for filePath, status of repo.statuses
+      directoryStatus |= status
+    return directoryStatus
 
   ignoreRepository: (repoPath) ->
     @ignoredRepositories.set(repoPath, true)
