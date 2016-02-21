@@ -1,17 +1,21 @@
 # Tree View Git Status package
 
-[![Build Status OSX & Linux](https://travis-ci.org/subesokun/atom-tree-view-git-status.svg?branch=master)](https://travis-ci.org/subesokun/atom-tree-view-git-status) [![Build Status Windows](https://ci.appveyor.com/api/projects/status/github/subesokun/atom-tree-view-git-status?branch=master&svg=true)](https://ci.appveyor.com/project/subesokun/atom-tree-view-git-status)
+[![License](https://img.shields.io/apm/l/tree-view-git-status.svg?style=flat-square)](https://atom.io/packages/tree-view-git-status)
+[![Version](https://img.shields.io/apm/v/tree-view-git-status.svg?style=flat-square)](https://atom.io/packages/tree-view-git-status)
+[![Downloads](https://img.shields.io/apm/dm/tree-view-git-status.svg?style=flat-square)](https://atom.io/packages/tree-view-git-status)
+[![Build Status Linux & OSX](https://img.shields.io/travis/subesokun/atom-tree-view-git-status.svg?style=flat-square&label=Linux%20%26%20OSX build)](https://travis-ci.org/subesokun/atom-tree-view-git-status)
+[![Build Status Windows](https://img.shields.io/appveyor/ci/subesokun/atom-tree-view-git-status.svg?style=flat-square&label=Windows)](https://ci.appveyor.com/project/subesokun/atom-tree-view-git-status)
+[![Dependency Status](https://img.shields.io/david/subesokun/atom-tree-view-git-status.svg?style=flat-square)](https://david-dm.org/subesokun/atom-tree-view-git-status)
 
 Show the Git repository status in the Atom tree-view.
 
 ### Screenshots
 
-![tree-view-git-status Screenshot](https://github.com/subesokun/atom-tree-view-git-status/blob/master/screenshot.png?raw=true)
+![Screenshot](https://github.com/subesokun/atom-tree-view-git-status/blob/master/screenshot.png?raw=true)
 
-![tree-view-git-status Screenshot](https://github.com/subesokun/atom-tree-view-git-status/blob/master/screenshot-tooltip.png?raw=true)
+![Screenshot Tooltip](https://github.com/subesokun/atom-tree-view-git-status/blob/master/screenshot-tooltip.png?raw=true)
 
-![tree-view-git-status Screenshot Settings](https://github.com/subesokun/atom-tree-view-git-status/blob/master/screenshot-settings.png?raw=true)
-
+![Screenshot Settings](https://github.com/subesokun/atom-tree-view-git-status/blob/master/screenshot-settings.png?raw=true)
 
 ### Installation
 
