@@ -112,6 +112,11 @@ describe "TreeViewGitStatus", ->
         expect(root.header.querySelector('span.tree-view-git-status'))
           .not.toExist()
 
+    it 'removes the Git Status CSS classes that were added to the DOM', ->
+      for root in treeView.roots
+        expect(root.classList.contains('status-modified')).toBe(false)
+        expect(root.classList.contains('status-added')).toBe(false)
+
   extractGitRepoFixture = (fixturesPath, dotGitFixture) ->
     dotGitFixturePath = path.join(fixturesPath, dotGitFixture, 'git.git')
     dotGit = path.join(temp.mkdirSync('repo'), '.git')
