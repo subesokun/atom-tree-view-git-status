@@ -8,6 +8,8 @@
 
 Show the Git repository status in the Atom tree-view.
 
+**IMPORTANT: Currently tree-view-git-status doesn't work together with Atom 1.8 due to Git library changes in Atom. Rework for 1.8 is ongoing and a new release will be soon available.**
+
 ### Screenshots
 
 ![Screenshot](https://github.com/subesokun/atom-tree-view-git-status/blob/master/screenshot.png?raw=true)
