@@ -9,6 +9,9 @@ module.exports = class TreeViewUI
   repositoryMap: null
   treeViewRootsMap: null
   subscriptions: null
+  ENUM_UPDATE_STATUS =
+    { NOT_UPDATING: 0, UPDATING: 1, QUEUED: 2, QUEUED_RESET: 3 }
+  statusUpdatingRoots = ENUM_UPDATE_STATUS.NOT_UPDATING
 
   constructor: (@treeView, @repositoryMap) ->
     # Read configuration
@@ -61,6 +64,36 @@ module.exports = class TreeViewUI
         @updateRoots true
     )
 
+  subscribeUpdateConfigurations: ->
+    @subscriptions.add(
+      atom.config.observe 'tree-view-git-status.showProjectModifiedStatus',
+        (newValue) =>
+          if @showProjectModifiedStatus isnt newValue
+            @showProjectModifiedStatus = newValue
+            @updateRoots()
+    )
+    @subscriptions.add(
+      atom.config.observe 'tree-view-git-status.showBranchLabel',
+        (newValue) =>
+          if @showBranchLabel isnt newValue
+            @showBranchLabel = newValue
+          @updateRoots()
+    )
+    @subscriptions.add(
+      atom.config.observe 'tree-view-git-status.showCommitsAheadLabel',
+        (newValue) =>
+          if @showCommitsAheadLabel isnt newValue
+            @showCommitsAheadLabel = newValue
+            @updateRoots()
+    )
+    @subscriptions.add(
+      atom.config.observe 'tree-view-git-status.showCommitsBehindLabel',
+        (newValue) =>
+          if @showCommitsBehindLabel isnt newValue
+            @showCommitsBehindLabel = newValue
+            @updateRoots()
+    )
+
   setRepositories: (repositories) ->
     if repositories?
       @repositoryMap = repositories
@@ -76,9 +109,12 @@ module.exports = class TreeViewUI
     @treeViewRootsMap?.clear()
 
   updateRoots: (reset) ->
-    if @repositoryMap?
+    return if not @repositoryMap?
+    if statusUpdatingRoots is ENUM_UPDATE_STATUS.NOT_UPDATING
+      statusUpdatingRoots = ENUM_UPDATE_STATUS.UPDATING
       @roots = @treeView.roots
       @clearTreeViewRootMap() if reset
+      updatePromises = []
       for root in @roots
         rootPath = utils.normalizePath root.directoryName.dataset.path
         if reset
@@ -94,15 +130,40 @@ module.exports = class TreeViewUI
         if repoForRoot?
           if not repoForRoot?
             repoForRoot = null
-          @doUpdateRootNode root, repoForRoot, rootPath, repoSubPath
+          updatePromises.push(
+            @doUpdateRootNode root, repoForRoot, rootPath, repoSubPath
+          )
+      # Wait until all roots have been updated and then check
+      # if we've a queued update roots job
+      Promise.all(updatePromises)
+      .catch((err) ->
+        console.error err
+      )
+      .then(=>
+        lastStatus = statusUpdatingRoots
+        statusUpdatingRoots = ENUM_UPDATE_STATUS.NOT_UPDATING
+        if lastStatus is ENUM_UPDATE_STATUS.QUEUED
+          @updateRoots()
+        else if lastStatus is ENUM_UPDATE_STATUS.QUEUED_RESET
+          @updateRoots(true)
+      )
+
+
+    else if statusUpdatingRoots is ENUM_UPDATE_STATUS.UPDATING
+      statusUpdatingRoots = ENUM_UPDATE_STATUS.QUEUED
+
+    if statusUpdatingRoots is ENUM_UPDATE_STATUS.QUEUED and reset
+      statusUpdatingRoots = ENUM_UPDATE_STATUS.QUEUED_RESET
 
   updateRootForRepo: (repo, repoPath) ->
-    if @treeView? and @treeViewRootsMap?
-      @treeViewRootsMap.forEach (root, rootPath) =>
-        # Check if the root path is sub path of repo path
-        repoSubPath = path.relative repoPath, rootPath
-        if repoSubPath.indexOf('..') isnt 0
-          @doUpdateRootNode root.root, repo, rootPath, repoSubPath if root.root?
+    @updateRoots() # TODO Remove workaround...
+    # TODO Solve concurrency issues when updating the roots
+    # if @treeView? and @treeViewRootsMap?
+    #   @treeViewRootsMap.forEach (root, rootPath) =>
+    #     # Check if the root path is sub path of repo path
+    #     repoSubPath = path.relative repoPath, rootPath
+    #     if repoSubPath.indexOf('..') isnt 0 and root.root?
+    #       @doUpdateRootNode root.root, repo, rootPath, repoSubPath
 
   doUpdateRootNode: (root, repo, rootPath, repoSubPath) ->
     customElements = @treeViewRootsMap.get(rootPath).customElements
@@ -195,33 +256,3 @@ module.exports = class TreeViewUI
     else if repo.isStatusNew(status)
       newStatus = 'added'
     return newStatus
-
-  subscribeUpdateConfigurations: ->
-    @subscriptions.add(
-      atom.config.observe 'tree-view-git-status.showProjectModifiedStatus',
-        (newValue) =>
-          if @showProjectModifiedStatus isnt newValue
-            @showProjectModifiedStatus = newValue
-            @updateRoots()
-    )
-    @subscriptions.add(
-      atom.config.observe 'tree-view-git-status.showBranchLabel',
-        (newValue) =>
-          if @showBranchLabel isnt newValue
-            @showBranchLabel = newValue
-            @updateRoots()
-   )
-    @subscriptions.add(
-      atom.config.observe 'tree-view-git-status.showCommitsAheadLabel',
-        (newValue) =>
-          if @showCommitsAheadLabel isnt newValue
-            @showCommitsAheadLabel = newValue
-            @updateRoots()
-    )
-    @subscriptions.add(
-      atom.config.observe 'tree-view-git-status.showCommitsBehindLabel',
-        (newValue) =>
-          if @showCommitsBehindLabel isnt newValue
-            @showCommitsBehindLabel = newValue
-            @updateRoots()
-    )
