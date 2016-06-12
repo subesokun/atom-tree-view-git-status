@@ -14,7 +14,17 @@ normalizePath = (repoPath) ->
   return normPath.replace(/[\\\/]$/, '')
 
 getRootDirectoryStatus = (repo) ->
-  return repo._getStatus(['**'])
+  # Workaround for Atom 1.9 as still this root directory status bug exists and
+  # the _getStatus function has been moved into ohnogit
+  promise = Promise.resolve()
+  if repo._getStatus?
+    promise = promise.then ->
+      return repo._getStatus(['**'])
+  else
+    promise = promise.then ->
+      return repo.repo._getStatus(['**'])
+
+  return promise
     .then (statuses) ->
       return Promise.all(
         statuses.map((s) -> s.statusBit())

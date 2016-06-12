@@ -196,12 +196,6 @@ module.exports = class TreeViewUI
       newStatus = 'added'
     return newStatus
 
-  getRootDirectoryStatus: (repo) ->
-    directoryStatus = 0
-    for filePath, status of repo.statuses
-      directoryStatus |= status
-    return directoryStatus
-
   subscribeUpdateConfigurations: ->
     @subscriptions.add(
       atom.config.observe 'tree-view-git-status.showProjectModifiedStatus',
