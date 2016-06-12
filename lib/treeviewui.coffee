@@ -105,7 +105,6 @@ module.exports = class TreeViewUI
           @doUpdateRootNode root.root, repo, rootPath, repoSubPath if root.root?
 
   doUpdateRootNode: (root, repo, rootPath, repoSubPath) ->
-    console.warn 'DOOO Update ROOOOOT', rootPath, repoSubPath
     customElements = @treeViewRootsMap.get(rootPath).customElements
     updatePromise = Promise.resolve()
 

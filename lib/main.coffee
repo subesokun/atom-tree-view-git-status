@@ -1,6 +1,7 @@
-{CompositeDisposable} = require 'atom'
+{CompositeDisposable, Emitter} = require 'atom'
 ProjectRepositories = require './repositories'
 TreeViewUI = require './treeviewui'
+utils = require './utils'
 
 module.exports = TreeViewGitStatus =
 
@@ -31,8 +32,12 @@ module.exports = TreeViewGitStatus =
   active: false
   repos: null
   treeViewUI: null
+  ignoredRepositories: null
+  emitter: null
 
   activate: ->
+    @emitter = new Emitter
+    @ignoredRepositories = new Map
     @subscriptionsOfCommands = new CompositeDisposable
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.packages.onDidActivateInitialPackages =>
@@ -42,7 +47,7 @@ module.exports = TreeViewGitStatus =
   doInitPackage: ->
     # Check if the tree view has been already initialized
     treeView = @getTreeView()
-    return unless treeView
+    return unless treeView and not @active
 
     @treeView = treeView
     @active = true
@@ -53,20 +58,33 @@ module.exports = TreeViewGitStatus =
         @toggle()
     autoToggle = atom.config.get 'tree-view-git-status.autoToggle'
     @toggle() if autoToggle
+    @emitter.emit 'did-activate'
 
   deactivate: ->
     @subscriptions?.dispose()
-    @subscriptionsOfCommands?.dispose()
     @subscriptions = null
+    @subscriptionsOfCommands?.dispose()
+    @subscriptionsOfCommands = null
+    @toggledSubscriptions?.dispose()
+    @toggledSubscriptions = null
     @treeView = null
     @active = false
     @toggled = false
+    @ignoredRepositories?.clear()
+    @ignoredRepositories = null
+    @repos?.destruct()
+    @repos = null
+    @treeViewUI?.destruct()
+    @treeViewUI = null
+    @emitter?.clear()
+    @emitter?.dispose()
+    @emitter = null
 
   toggle: ->
     return unless @active
     if not @toggled
       @toggled = true
-      @repos = new ProjectRepositories
+      @repos = new ProjectRepositories(@ignoredRepositories)
       @treeViewUI = new TreeViewUI @treeView, @repos.getRepositories()
       @toggledSubscriptions = new CompositeDisposable
       @toggledSubscriptions.add(
@@ -80,8 +98,6 @@ module.exports = TreeViewGitStatus =
       )
     else
       @toggled = false
-      @subscriptions?.dispose()
-      @subscriptions = null
       @toggledSubscriptions?.dispose()
       @toggledSubscriptions = null
       @repos?.destruct()
@@ -100,3 +116,13 @@ module.exports = TreeViewGitStatus =
         return null
     else
       return @treeView
+
+  getRepositories: ->
+    return if @repos? then @repos.getRepositories() else null
+
+  ignoreRepository: (repoPath) ->
+    @ignoredRepositories.set(utils.normalizePath(repoPath), true)
+    @repo?.setIgnoredRepositories(@ignoredRepositories)
+
+  onDidActivate: (handler) ->
+    return @emitter.on 'did-activate', handler

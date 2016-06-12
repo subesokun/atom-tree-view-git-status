@@ -6,9 +6,8 @@ module.exports = class ProjectRepositories
   projectSubscriptions: null
   repositorySubscriptions: null
 
-  constructor: ->
+  constructor: (@ignoredRepositories) ->
     @emitter = new Emitter
-    @ignoredRepositories = new Map
     @repositoryMap = new Map
     @projectSubscriptions = new CompositeDisposable
     @repositorySubscriptions = new CompositeDisposable
@@ -22,8 +21,8 @@ module.exports = class ProjectRepositories
     @projectSubscriptions = null
     @repositorySubscriptions?.dispose()
     @repositorySubscriptions = null
-    @ignoredRepositories?.clear()
     @ignoredRepositories = null
+    @repositoryMap?.clear()
     @repositoryMap = null
     @emitter?.clear()
     @emitter?.dispose()
@@ -49,6 +48,11 @@ module.exports = class ProjectRepositories
         else
           tmpRepositorySubscriptions.dispose()
       )
+      .catch((err) ->
+        # Log error
+        console.error err
+        return Promise.reject(err)
+      )
 
   doSubscribeUpdateRepository: (repo, repositoryMap, repositorySubscriptions) ->
     if repo.async?
@@ -66,8 +70,8 @@ module.exports = class ProjectRepositories
                 return Promise.reject(
                   'Got invalid working directory path for repo'
                 )
-              if !@isRepositoryIgnored(directory)
-                repoPath = utils.normalizePath(directory)
+              repoPath = utils.normalizePath(directory)
+              if !@isRepositoryIgnored(repoPath)
                 repositoryMap.set repoPath, repoasync
                 @subscribeToRepo repoPath, repoasync, repositorySubscriptions
             )
@@ -90,8 +94,7 @@ module.exports = class ProjectRepositories
   getRepositories: () ->
     return @repositoryMap
 
-  ignoreRepository: (repoPath) ->
-    @ignoredRepositories.set(repoPath, true)
+  setIgnoredRepositories: (@ignoredRepositories) ->
     @subscribeUpdateRepositories()
 
   isRepositoryIgnored: (repoPath) ->
