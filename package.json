@@ -1,15 +1,15 @@
 {
   "name": "tree-view-git-status",
   "main": "./lib/main",
-  "version": "0.2.3",
+  "version": "1.0.0",
   "description": "Show the Git repository status in the Atom tree-view",
   "repository": "https://github.com/subesokun/atom-tree-view-git-status",
   "license": "MIT",
   "engines": {
-    "atom": ">=0.184.0"
+    "atom": ">=1.7.0"
   },
   "dependencies": {
-    "fs-plus": "^2.8.1",
+    "fs-plus": "^2.9.1",
     "temp": "^0.8.3"
   },
   "devDependencies": {},
@@ -17,6 +17,7 @@
     "tree-view",
     "git",
     "vcs",
+    "scm",
     "productivity"
   ]
 }
