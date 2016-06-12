@@ -9,6 +9,8 @@ module.exports = TreeViewGitStatus =
     autoToggle:
       type: 'boolean'
       default: true
+      description:
+        'Show the Git status in the tree view when starting Atom'
     showProjectModifiedStatus:
       type: 'boolean'
       default: true
