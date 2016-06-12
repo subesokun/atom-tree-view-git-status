@@ -14,7 +14,7 @@ describe "TreeViewGitStatus", ->
     fixturesPath, unlockWaitFor, defaultDelay] = []
 
   beforeEach ->
-    defaultDelay = 500
+    defaultDelay = 1000
     fixturesPath = atom.project.getPaths()[0]
     atom.project.removePath(fixturesPath)
 
