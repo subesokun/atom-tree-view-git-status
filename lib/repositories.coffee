@@ -37,7 +37,7 @@ module.exports = class ProjectRepositories
       repoPromises.push @doSubscribeUpdateRepository(
         repo, repositoryMap, tmpRepositorySubscriptions
       )
-    return Promise.all(repoPromises)
+    return utils.settle(repoPromises)
       .then(() =>
         # Verify if the repositories instance haven't been yet
         # destructed (i.e. if we are still "toggled")

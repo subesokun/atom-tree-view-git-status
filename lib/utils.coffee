@@ -35,7 +35,29 @@ getRootDirectoryStatus = (repo) ->
           .filter((b) -> b > 0)
           .reduce(reduceFct, 0)
 
+# Wait until all prmoises have been settled even thought a promise has
+# been rejected.
+settle = (promises) ->
+  promiseWrapper = (promise) ->
+    return promise
+      .then((result) ->
+        return { resolved: result }
+      )
+      .catch((err) ->
+        console.error err
+        return { rejected: err }
+      )
+  return Promise.all(promises.map(promiseWrapper))
+    .then (results) ->
+      rejectedPromises = results.filter (p) -> p.hasOwnProperty('rejected')
+      strippedResults = results.map (r) -> r.resolved || r.rejected
+      if rejectedPromises.length is 0
+        return strippedResults
+      else
+        return Promise.reject(strippedResults)
+
 module.exports = {
   normalizePath: normalizePath,
-  getRootDirectoryStatus: getRootDirectoryStatus
+  getRootDirectoryStatus: getRootDirectoryStatus,
+  settle: settle
 }

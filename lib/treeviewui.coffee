@@ -135,8 +135,10 @@ module.exports = class TreeViewUI
           )
       # Wait until all roots have been updated and then check
       # if we've a queued update roots job
-      Promise.all(updatePromises)
+      utils.settle(updatePromises)
       .catch((err) ->
+        # Print errors in case there have been any... and then continute with
+        # the following then block
         console.error err
       )
       .then(=>
@@ -178,7 +180,7 @@ module.exports = class TreeViewUI
           # on the repository root folder
           return utils.getRootDirectoryStatus repo
 
-    updatePromise.then (status) =>
+    return updatePromise.then((status) =>
       # Sanity check...
       return unless @roots?
 
@@ -192,8 +194,8 @@ module.exports = class TreeViewUI
       if showHeaderGitStatus and repo? and not customElements.headerGitStatus?
         headerGitStatus = document.createElement('span')
         headerGitStatus.classList.add('tree-view-git-status')
-        customElements.headerGitStatus = headerGitStatus
         return @generateGitStatusText(headerGitStatus, repo).then ->
+          customElements.headerGitStatus = headerGitStatus
           root.header.insertBefore(
             headerGitStatus, root.directoryName.nextSibling
           )
@@ -202,6 +204,7 @@ module.exports = class TreeViewUI
       else if customElements.headerGitStatus?
         root.header.removeChild(customElements.headerGitStatus)
         customElements.headerGitStatus = null
+    )
 
   generateGitStatusText: (container, repo) ->
     display = false

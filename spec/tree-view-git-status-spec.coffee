@@ -54,7 +54,7 @@ describe "TreeViewGitStatus", ->
   it 'adds valid Git repositories', () ->
     # TODO Figure out why only this test triggers a
     # Uncaught (in promise) Error: Repository has been destroyed(…)
-    # error...
+    # error... NOTE: adding idle(defaultDelay) avoids this issue... but why?
     prepareProject('git-project')
     runs () ->
       expect(treeViewGitStatus.getRepositories()).not.toBeNull()
