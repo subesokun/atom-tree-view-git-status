@@ -80,6 +80,7 @@ module.exports = class ProjectRepositories
           console.warn 'Ignoring respority due to error:', error, repo
           return Promise.resolve()
         )
+    else
       # Nothing to do as we don't support the obsolete sync Git API
       console.warn 'Ignoring respority as it doesn\'t support the ' +
         ' the async Git API:', repo
