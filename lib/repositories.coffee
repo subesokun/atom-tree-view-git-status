@@ -77,9 +77,13 @@ module.exports = class ProjectRepositories
             )
         )
         .catch((error) ->
-          console.warn 'Ignoring respority:', error, repo
+          console.warn 'Ignoring respority due to error:', error, repo
           return Promise.resolve()
         )
+      # Nothing to do as we don't support the obsolete sync Git API
+      console.warn 'Ignoring respority as it doesn\'t support the ' +
+        ' the async Git API:', repo
+      return Promise.resolve()
 
   subscribeToRepo: (repoPath, repo, repositorySubscriptions) ->
     repositorySubscriptions?.add repo.onDidChangeStatuses =>
