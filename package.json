@@ -1,7 +1,7 @@
 {
   "name": "tree-view-git-status",
   "main": "./lib/main",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Show the Git repository status in the Atom tree-view",
   "repository": "https://github.com/subesokun/atom-tree-view-git-status",
   "license": "MIT",
