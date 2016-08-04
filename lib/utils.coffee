@@ -14,26 +14,28 @@ normalizePath = (repoPath) ->
   return normPath.replace(/[\\\/]$/, '')
 
 getRootDirectoryStatus = (repo) ->
-  # Workaround for Atom 1.9 as still this root directory status bug exists and
-  # the _getStatus function has been moved into ohnogit
   promise = Promise.resolve()
-  if repo._getStatus?
-    promise = promise.then ->
-      return repo._getStatus(['**'])
-  else
-    promise = promise.then ->
-      return repo.repo._getStatus(['**'])
-
-  return promise
-    .then (statuses) ->
-      return Promise.all(
-        statuses.map((s) -> s.statusBit())
-      ).then (bits) ->
-        reduceFct = (status, bit) ->
-          return status | bit
-        return bits
-          .filter((b) -> b > 0)
-          .reduce(reduceFct, 0)
+  if repo._getStatus? or repo.repo._getStatus?
+    # Workaround for Atom < 1.9 as still this root directory status bug
+    # exists and the _getStatus function has been moved into ohnogit
+    if repo._getStatus?
+      promise = promise.then ->
+        return repo._getStatus(['**'])
+    else
+      promise = promise.then ->
+        return repo.repo._getStatus(['**'])
+    return promise
+      .then (statuses) ->
+        return Promise.all(
+          statuses.map((s) -> s.statusBit())
+        ).then (bits) ->
+          reduceFct = (status, bit) ->
+            return status | bit
+          return bits
+            .filter((b) -> b > 0)
+            .reduce(reduceFct, 0)
+  # Atom >= 1.9 with our own GitRepositoryAsync wrapper
+  return repo.getRootDirectoryStatus()
 
 # Wait until all prmoises have been settled even thought a promise has
 # been rejected.
