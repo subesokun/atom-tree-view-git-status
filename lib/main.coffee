@@ -124,7 +124,7 @@ module.exports = TreeViewGitStatus =
 
   ignoreRepository: (repoPath) ->
     @ignoredRepositories.set(utils.normalizePath(repoPath), true)
-    @repo?.setIgnoredRepositories(@ignoredRepositories)
+    @repos?.setIgnoredRepositories(@ignoredRepositories)
 
   onDidActivate: (handler) ->
     return @emitter.on 'did-activate', handler
