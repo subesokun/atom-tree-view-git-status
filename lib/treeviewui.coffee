@@ -229,6 +229,9 @@ module.exports = class TreeViewUI
         if @showBranchLabel and head?
           branchLabel = document.createElement('span')
           branchLabel.classList.add('branch-label')
+          # Check if branch name can be a valid CSS class
+          if /^[a-z_-][a-z\d_-]*$/i.test(head)
+            branchLabel.classList.add(head)
           branchLabel.textContent = head
           display = true
         if @showCommitsAheadLabel and ahead > 0
