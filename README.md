@@ -25,6 +25,13 @@ apm install tree-view-git-status
 
 * Show the Git branch name and commits ahead/behind labels for each project folder.
 * Plays nice together with the Atom [project-view](https://github.com/subesokun/atom-project-view) package.
+* Customizable styling of the Tree View Git status labels depending on the current active branch.
+
+### CSS Branch Styling
+
+![Screenshot CSS Branch Styling](https://github.com/subesokun/atom-tree-view-git-status/blob/master/screenshot-css-branch-styling.png?raw=true)
+
+Via the user's custom Atom CSS stylesheet (Settings > Themes > "Edit Stylesheet") you can individually style the Tree View Git status labels as shown above. An example stylesheet can be found [here](https://gist.github.com/subesokun/04909f8ff45fbc28faad016559adc267).
 
 ### License
 
