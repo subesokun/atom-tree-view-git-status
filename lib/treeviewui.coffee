@@ -226,12 +226,16 @@ module.exports = class TreeViewUI
             {ahead, behind} = count
           )
       .then =>
+        # Reset styles
+        container.className =  ''
+        container.classList.add('tree-view-git-status')
+
         if @showBranchLabel and head?
           branchLabel = document.createElement('span')
           branchLabel.classList.add('branch-label')
           # Check if branch name can be a valid CSS class
           if /^[a-z_-][a-z\d_-]*$/i.test(head)
-            branchLabel.classList.add(head)
+            container.classList.add('git-branch-' + head)
           branchLabel.textContent = head
           display = true
         if @showCommitsAheadLabel and ahead > 0
