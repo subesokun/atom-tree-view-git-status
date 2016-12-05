@@ -14,28 +14,52 @@ normalizePath = (repoPath) ->
   return normPath.replace(/[\\\/]$/, '')
 
 getRootDirectoryStatus = (repo) ->
-  # Workaround for Atom 1.9 as still this root directory status bug exists and
-  # the _getStatus function has been moved into ohnogit
   promise = Promise.resolve()
-  if repo._getStatus?
-    promise = promise.then ->
-      return repo._getStatus(['**'])
-  else
-    promise = promise.then ->
-      return repo.repo._getStatus(['**'])
+  if repo._getStatus? or repo.repo._getStatus?
+    # Workaround for Atom < 1.9 as still this root directory status bug
+    # exists and the _getStatus function has been moved into ohnogit
+    if repo._getStatus?
+      promise = promise.then ->
+        return repo._getStatus(['**'])
+    else
+      promise = promise.then ->
+        return repo.repo._getStatus(['**'])
+    return promise
+      .then (statuses) ->
+        return Promise.all(
+          statuses.map((s) -> s.statusBit())
+        ).then (bits) ->
+          reduceFct = (status, bit) ->
+            return status | bit
+          return bits
+            .filter((b) -> b > 0)
+            .reduce(reduceFct, 0)
+  # Atom >= 1.9 with our own GitRepositoryAsync wrapper
+  return repo.getRootDirectoryStatus()
 
-  return promise
-    .then (statuses) ->
-      return Promise.all(
-        statuses.map((s) -> s.statusBit())
-      ).then (bits) ->
-        reduceFct = (status, bit) ->
-          return status | bit
-        return bits
-          .filter((b) -> b > 0)
-          .reduce(reduceFct, 0)
+# Wait until all prmoises have been settled even thought a promise has
+# been rejected.
+settle = (promises) ->
+  promiseWrapper = (promise) ->
+    return promise
+      .then((result) ->
+        return { resolved: result }
+      )
+      .catch((err) ->
+        console.error err
+        return { rejected: err }
+      )
+  return Promise.all(promises.map(promiseWrapper))
+    .then (results) ->
+      rejectedPromises = results.filter (p) -> p.hasOwnProperty('rejected')
+      strippedResults = results.map (r) -> r.resolved || r.rejected
+      if rejectedPromises.length is 0
+        return strippedResults
+      else
+        return Promise.reject(strippedResults)
 
 module.exports = {
   normalizePath: normalizePath,
-  getRootDirectoryStatus: getRootDirectoryStatus
+  getRootDirectoryStatus: getRootDirectoryStatus,
+  settle: settle
 }
