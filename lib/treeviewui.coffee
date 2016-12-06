@@ -122,10 +122,18 @@ module.exports = class TreeViewUI
         repoForRoot = null
         repoSubPath = null
         rootPathHasGitFolder = fs.existsSync(path.join(rootPath, '.git'))
+        # Workaround: repoPayh is the real path of the repository. When rootPath
+        # is a symbolic link, both do not not match and the repository is never
+        # found. In this case, we expand the symbolic link, make it absolute and
+        # normalize it to make sure it matches.
+        rootPathNoSymlink = rootPath
+        if (fs.isSymbolicLinkSync(rootPath))
+          rootPathNoSymlink = utils.normalizePath(fs.realpathSync(rootPath))
         @repositoryMap.forEach (repo, repoPath) ->
-          if not repoForRoot? and ((rootPath is repoPath) or
-              (rootPath.indexOf(repoPath) is 0 and not rootPathHasGitFolder))
-            repoSubPath = path.relative repoPath, rootPath
+          if not repoForRoot? and ((rootPathNoSymlink is repoPath) or
+              (rootPathNoSymlink.indexOf(repoPath) is 0 and
+              not rootPathHasGitFolder))
+            repoSubPath = path.relative repoPath, rootPathNoSymlink
             repoForRoot = repo
         if repoForRoot?
           if not repoForRoot?
