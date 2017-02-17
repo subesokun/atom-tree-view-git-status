@@ -44,6 +44,11 @@ module.exports = TreeViewGitStatus =
     @subscriptions = new CompositeDisposable
     @subscriptions.add atom.packages.onDidActivateInitialPackages =>
       @doInitPackage()
+    # Workaround for the isse that "onDidActivateInitialPackages" never gets
+    # fired if one or more packages are failing to initialize
+    @activateInterval = setInterval (=>
+        @doInitPackage()
+      ), 1000
     @doInitPackage()
 
   doInitPackage: ->
@@ -51,6 +56,7 @@ module.exports = TreeViewGitStatus =
     treeView = @getTreeView()
     return unless treeView and not @active
 
+    clearInterval(@activateInterval)
     @treeView = treeView
     @active = true
 
