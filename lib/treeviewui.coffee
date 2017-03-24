@@ -23,6 +23,10 @@ module.exports = class TreeViewUI
       atom.config.get 'tree-view-git-status.showCommitsAheadLabel'
     @showCommitsBehindLabel =
       atom.config.get 'tree-view-git-status.showCommitsBehindLabel'
+    @gitFlowEnabled =
+      atom.config.get 'tree-view-git-status.git_flow.enabled'
+    @gitFlowDisplayType =
+      atom.config.get 'tree-view-git-status.git_flow.display_type'
 
     @subscriptions = new CompositeDisposable
     @treeViewRootsMap = new Map
@@ -91,6 +95,20 @@ module.exports = class TreeViewUI
         (newValue) =>
           if @showCommitsBehindLabel isnt newValue
             @showCommitsBehindLabel = newValue
+            @updateRoots()
+    )
+    @subscriptions.add(
+      atom.config.observe 'tree-view-git-status.git_flow.enabled',
+        (newValue) =>
+          if @gitFlowEnabled isnt newValue
+            @gitFlowEnabled = newValue
+            @updateRoots()
+    )
+    @subscriptions.add(
+      atom.config.observe 'tree-view-git-status.git_flow.display_type',
+        (newValue) =>
+          if @gitFlowDisplayType isnt newValue
+            @gitFlowDisplayType = newValue
             @updateRoots()
     )
 
