@@ -2,6 +2,7 @@
 path = require 'path'
 fs = require 'fs-plus'
 utils = require './utils'
+GitFlowHandler = require './gitflowhandler'
 
 module.exports = class TreeViewUI
 
@@ -9,6 +10,7 @@ module.exports = class TreeViewUI
   repositoryMap: null
   treeViewRootsMap: null
   subscriptions: null
+  gitFlowHandler: null
   ENUM_UPDATE_STATUS =
     { NOT_UPDATING: 0, UPDATING: 1, QUEUED: 2, QUEUED_RESET: 3 }
   statusUpdatingRoots = ENUM_UPDATE_STATUS.NOT_UPDATING
@@ -26,6 +28,7 @@ module.exports = class TreeViewUI
 
     @subscriptions = new CompositeDisposable
     @treeViewRootsMap = new Map
+    @gitFlowHandler = new GitFlowHandler(this)
 
     # Bind against events which are causing an update of the tree view
     @subscribeUpdateConfigurations()
@@ -39,6 +42,7 @@ module.exports = class TreeViewUI
     @subscriptions?.dispose()
     @subscriptions = null
     @treeViewRootsMap = null
+    @gitFlowHandler = null
     @repositoryMap = null
     @roots = null
 
@@ -234,6 +238,7 @@ module.exports = class TreeViewUI
             {ahead, behind} = count
           )
       .then =>
+        asyncEvents = []
         # Reset styles
         container.className =  ''
         container.classList.add('tree-view-git-status')
@@ -245,6 +250,13 @@ module.exports = class TreeViewUI
           if /^[a-z_-][a-z\d_-]*$/i.test(head)
             container.classList.add('git-branch-' + head)
           branchLabel.textContent = head
+
+          # Forward to GitFlowHandler, this method runs async
+          asyncEvents.push(
+            @gitFlowHandler.enhanceBranchName branchLabel, repo
+          )
+
+          # Mark as displayable
           display = true
         if @showCommitsAheadLabel and ahead > 0
           commitsAhead = document.createElement('span')
@@ -262,10 +274,13 @@ module.exports = class TreeViewUI
         else
           container.classList.add('hide')
 
-        container.innerHTML = ''
-        container.appendChild branchLabel if branchLabel?
-        container.appendChild commitsAhead if commitsAhead?
-        container.appendChild commitsBehind if commitsBehind?
+        # Wait for all async methods to complete, or resolve instantly
+        # if the array is empty.
+        return Promise.all(asyncEvents).then ->
+          container.innerHTML = ''
+          container.appendChild branchLabel if branchLabel?
+          container.appendChild commitsAhead if commitsAhead?
+          container.appendChild commitsBehind if commitsBehind?
 
   convertDirectoryStatus: (repo, status) ->
     newStatus = null
