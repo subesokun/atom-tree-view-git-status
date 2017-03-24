@@ -47,8 +47,8 @@ module.exports = TreeViewGitStatus =
     # Workaround for the isse that "onDidActivateInitialPackages" never gets
     # fired if one or more packages are failing to initialize
     @activateInterval = setInterval (=>
-        @doInitPackage()
-      ), 1000
+      @doInitPackage()
+    ), 1000
     @doInitPackage()
 
   doInitPackage: ->
