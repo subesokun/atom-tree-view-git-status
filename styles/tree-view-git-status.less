@@ -1,4 +1,5 @@
 @import "ui-variables";
+@import 'variables';
 @import "fonts";
 @import "icons";
 @import "tooltip";
@@ -34,6 +35,28 @@
       font-size: @font-size * 0.8;
       margin-right: 2px;
       .icon-long-arrow-down;
+    }
+
+    // Git Flow
+    .branch-label__prefix,
+    .branch-label__icon {
+      &--feature {
+        color: @text-color-flow-feature;
+      }
+      &--hotfix {
+        color: @text-color-flow-hotfix;
+      }
+      &--develop {
+        color: @text-color-flow-develop;
+      }
+      &--master {
+        color: @text-color-flow-master;
+      }
+    }
+    .branch-label__icon,
+    .branch-label__icon:before {
+      font-size: 1rem;
+      margin-right: .1rem;
     }
   }
 }
