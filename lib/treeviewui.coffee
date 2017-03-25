@@ -5,6 +5,7 @@ utils = require './utils'
 
 flowIconMap =
   feature: 'puzzle'
+  release: 'package'
   hotfix: 'flame'
   develop: 'home'
   master: 'verified'
@@ -332,6 +333,10 @@ module.exports = class TreeViewUI
       stateName = 'feature'
       branchPrefix = gitFlow.feature
       workType = 'a feature'
+    else if gitFlow.release? and startsWith branchName, gitFlow.release
+      stateName = 'release'
+      branchPrefix = gitFlow.release
+      workType = 'a release'
     else if gitFlow.hotfix? and startsWith branchName, gitFlow.hotfix
       stateName = 'hotfix'
       branchPrefix = gitFlow.hotfix
