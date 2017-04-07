@@ -33,23 +33,6 @@ module.exports = class GitRepositoryAsync
         directoryStatus |= status
       return directoryStatus
 
-  ###
-   * Returns the usual configuration for Git Flow, which includes the prefixes
-   * for each kind of branch.
-   *
-   * @return {Object} Git Flow information
-  ###
-  getFlowConfig: ->
-    # Use a Promise to determine what each prefix is and where the `master`
-    # and `develop` branches are
-    return Promise.resolve().then => {
-      master: @repo.getConfigValue 'gitflow.branch.master'
-      develop: @repo.getConfigValue 'gitflow.branch.develop'
-      feature: @repo.getConfigValue 'gitflow.prefix.feature'
-      release: @repo.getConfigValue 'gitflow.prefix.release'
-      hotfix: @repo.getConfigValue 'gitflow.prefix.hotfix'
-    }
-
   refreshStatus: ->
     return Promise.resolve()
 

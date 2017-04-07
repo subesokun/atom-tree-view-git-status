@@ -2,13 +2,7 @@
 path = require 'path'
 fs = require 'fs-plus'
 utils = require './utils'
-
-flowIconMap =
-  feature: 'puzzle'
-  release: 'package'
-  hotfix: 'flame'
-  develop: 'home'
-  master: 'verified'
+GitFlowHandler = require './gitflowhandler'
 
 module.exports = class TreeViewUI
 
@@ -16,6 +10,7 @@ module.exports = class TreeViewUI
   repositoryMap: null
   treeViewRootsMap: null
   subscriptions: null
+  gitFlowHandler: null
   ENUM_UPDATE_STATUS =
     { NOT_UPDATING: 0, UPDATING: 1, QUEUED: 2, QUEUED_RESET: 3 }
   statusUpdatingRoots = ENUM_UPDATE_STATUS.NOT_UPDATING
@@ -30,13 +25,10 @@ module.exports = class TreeViewUI
       atom.config.get 'tree-view-git-status.showCommitsAheadLabel'
     @showCommitsBehindLabel =
       atom.config.get 'tree-view-git-status.showCommitsBehindLabel'
-    @gitFlowEnabled =
-      atom.config.get 'tree-view-git-status.git_flow.enabled'
-    @gitFlowDisplayType =
-      atom.config.get 'tree-view-git-status.git_flow.display_type'
 
     @subscriptions = new CompositeDisposable
     @treeViewRootsMap = new Map
+    @gitFlowHandler = new GitFlowHandler(this)
 
     # Bind against events which are causing an update of the tree view
     @subscribeUpdateConfigurations()
@@ -50,6 +42,7 @@ module.exports = class TreeViewUI
     @subscriptions?.dispose()
     @subscriptions = null
     @treeViewRootsMap = null
+    @gitFlowHandler = null
     @repositoryMap = null
     @roots = null
 
@@ -102,20 +95,6 @@ module.exports = class TreeViewUI
         (newValue) =>
           if @showCommitsBehindLabel isnt newValue
             @showCommitsBehindLabel = newValue
-            @updateRoots()
-    )
-    @subscriptions.add(
-      atom.config.observe 'tree-view-git-status.git_flow.enabled',
-        (newValue) =>
-          if @gitFlowEnabled isnt newValue
-            @gitFlowEnabled = newValue
-            @updateRoots()
-    )
-    @subscriptions.add(
-      atom.config.observe 'tree-view-git-status.git_flow.display_type',
-        (newValue) =>
-          if @gitFlowDisplayType isnt newValue
-            @gitFlowDisplayType = newValue
             @updateRoots()
     )
 
@@ -244,8 +223,6 @@ module.exports = class TreeViewUI
     head = null
     ahead = behind = 0
 
-    gitFlowConfig = null
-
     # Ensure repo status is up-to-date
     repo.refreshStatus()
       .then ->
@@ -261,11 +238,7 @@ module.exports = class TreeViewUI
             {ahead, behind} = count
           )
       .then =>
-        if @gitFlowEnabled
-          return repo.getFlowConfig()
-          .then (data) ->
-            gitFlowConfig = data
-      .then =>
+        asyncEvents = []
         # Reset styles
         container.className =  ''
         container.classList.add('tree-view-git-status')
@@ -278,9 +251,10 @@ module.exports = class TreeViewUI
             container.classList.add('git-branch-' + head)
           branchLabel.textContent = head
 
-          # Apply git flow changes if possible
-          if @gitFlowEnabled and gitFlowConfig
-            @applyGitFlowConfig branchLabel, gitFlowConfig
+          # Forward to GitFlowHandler, this method runs async
+          asyncEvents.push(
+            @gitFlowHandler.enhanceBranchName branchLabel, repo
+          )
 
           # Mark as displayable
           display = true
@@ -300,101 +274,13 @@ module.exports = class TreeViewUI
         else
           container.classList.add('hide')
 
-        container.innerHTML = ''
-        container.appendChild branchLabel if branchLabel?
-        container.appendChild commitsAhead if commitsAhead?
-        container.appendChild commitsBehind if commitsBehind?
-
-  ###
-   Adds icons, prefixes and simplifies the branch name
-
-   @param  {DOMNode} node
-   @param  {Object} gitFlow
-  ###
-  applyGitFlowConfig: (node, gitFlow) ->
-    return unless node and gitFlow
-
-    branchPrefix = ''
-    branchName = node.textContent
-    workType = branchName
-
-    ###
-    Local function to determine the start of a branch. Since it's used
-    repeatedly
-    @param  {string} name   [description]
-    @param  {string} prefix [description]
-    @return [bool] Returns true if
-    ###
-    startsWith = (name, prefix) ->
-      prefix == name.substr 0, prefix.length
-
-    # Add Git Flow information
-    if gitFlow.feature? and startsWith branchName, gitFlow.feature
-      stateName = 'feature'
-      branchPrefix = gitFlow.feature
-      workType = 'a feature'
-    else if gitFlow.release? and startsWith branchName, gitFlow.release
-      stateName = 'release'
-      branchPrefix = gitFlow.release
-      workType = 'a release'
-    else if gitFlow.hotfix? and startsWith branchName, gitFlow.hotfix
-      stateName = 'hotfix'
-      branchPrefix = gitFlow.hotfix
-      workType = 'a hotfix'
-    else if gitFlow.develop? and branchName == gitFlow.develop
-      stateName = 'develop'
-    else if gitFlow.master? and branchName == gitFlow.master
-      stateName = 'master'
-    else
-      # We're nog on a Git Flow branch, don't do anything
-      return
-
-    # Add a data-flow attribute
-    node.dataset.gitFlowState = stateName
-
-    # Empty node
-    node.innerText = ''
-
-    # Add class names
-    node.classList.add(
-      'branch-label--flow',
-      "branch-label--flow-#{stateName}"
-    )
-
-    # Remove the prefix from the branchname, or move the branchname to the
-    # prefix in case of master / develop
-    if branchPrefix
-      branchName = branchName.substr(branchPrefix.length)
-    else
-      branchPrefix = branchName
-      branchName = ''
-
-    # If we want to use icons, make sure we remove the prefix
-    if @gitFlowDisplayType > 1
-      iconNode = document.createElement('span')
-      iconNode.classList.add(
-        "icon",
-        "icon-#{flowIconMap[stateName]}"
-        'branch-label__icon'
-        "branch-label__icon--#{stateName}"
-      )
-      iconNode.title = "Working on #{workType}"
-      node.appendChild iconNode
-
-    # If we're asked to display the prefix or we're on master/develop, display
-    # it.
-    if branchName == '' or @gitFlowDisplayType < 3
-      prefixNode = document.createElement('span')
-      prefixNode.classList.add(
-        'branch-label__prefix'
-        "branch-label__prefix--#{stateName}"
-      )
-      prefixNode.textContent = branchPrefix
-      node.appendChild prefixNode
-
-    # Finally, if we have a branchname left over, add it as well.
-    if branchName != ''
-      node.appendChild document.createTextNode(branchName)
+        # Wait for all async methods to complete, or resolve instantly
+        # if the array is empty.
+        return Promise.all(asyncEvents).then ->
+          container.innerHTML = ''
+          container.appendChild branchLabel if branchLabel?
+          container.appendChild commitsAhead if commitsAhead?
+          container.appendChild commitsBehind if commitsBehind?
 
   convertDirectoryStatus: (repo, status) ->
     newStatus = null
