@@ -1,8 +1,8 @@
 @import "ui-variables";
-@import 'variables';
 @import "fonts";
 @import "icons";
 @import "tooltip";
+@import "gitflow";
 
 .project-root.git-status-modified {
   .header-git-status {
@@ -35,33 +35,6 @@
       font-size: @font-size * 0.8;
       margin-right: 2px;
       .icon-long-arrow-down;
-    }
-
-    // Git Flow
-    .branch-label__prefix,
-    .branch-label__icon {
-      &--feature {
-        color: @text-color-flow-feature;
-      }
-      &--release {
-        color: @text-color-flow-release;
-      }
-      &--hotfix {
-        color: @text-color-flow-hotfix;
-      }
-      &--develop {
-        color: @text-color-flow-develop;
-      }
-      &--master {
-        color: @text-color-flow-master;
-      }
-    }
-    .branch-label__icon,
-    .branch-label__icon:before {
-      width: auto;
-      padding-left: .1rem;
-      margin-right: .2rem;
-      font-size: 1rem;
     }
   }
 }
