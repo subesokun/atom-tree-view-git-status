@@ -9,7 +9,7 @@
     "atom": ">=1.7.0"
   },
   "dependencies": {
-    "fs-plus": "^2.9.1",
+    "fs-plus": "^3.0.0",
     "temp": "^0.8.3"
   },
   "devDependencies": {},
