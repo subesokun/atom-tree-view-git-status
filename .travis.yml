@@ -40,4 +40,5 @@ addons:
     - build-essential
     - git
     - libgnome-keyring-dev
+    - libsecret-1-dev
     - fakeroot
