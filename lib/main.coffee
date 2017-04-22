@@ -7,25 +7,54 @@ module.exports = TreeViewGitStatus =
 
   config:
     autoToggle:
+      order: 1
       type: 'boolean'
       default: true
       description:
         'Show the Git status in the tree view when starting Atom'
     showProjectModifiedStatus:
+      order: 2
       type: 'boolean'
       default: true
       description:
         'Mark project folder as modified in case there are any ' +
         'uncommited changes'
     showBranchLabel:
+      order: 3
       type: 'boolean'
       default: true
     showCommitsAheadLabel:
+      order: 4
       type: 'boolean'
       default: true
     showCommitsBehindLabel:
+      order: 5
       type: 'boolean'
       default: true
+    gitFlow:
+      order: 6
+      type: 'object'
+      properties:
+        enabled:
+          order: 1
+          type: 'boolean'
+          default: false
+          title: 'Enable Git Flow'
+          description:
+            'Git Flow support requires you to [install Git Flow](https://github.com/petervanderdoes/gitflow-avh/wiki/Installation) run `git flow init` on the ' +
+            'repository you want to use.'
+        display_type:
+          order: 2
+          type: 'integer'
+          default: 1
+          title: 'Git Flow display type'
+          minimum: 1
+          maximum: 3
+          enum: [
+            {value: 1, description: 'Show prefix and branchname'}
+            {value: 2, description: 'Show icon, prefix and branchname'}
+            {value: 3, description: 'Show icon and branchname'}
+          ]
 
   subscriptions: null
   toggledSubscriptions: null
@@ -47,8 +76,8 @@ module.exports = TreeViewGitStatus =
     # Workaround for the isse that "onDidActivateInitialPackages" never gets
     # fired if one or more packages are failing to initialize
     @activateInterval = setInterval (=>
-        @doInitPackage()
-      ), 1000
+      @doInitPackage()
+    ), 1000
     @doInitPackage()
 
   doInitPackage: ->

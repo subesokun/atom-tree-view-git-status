@@ -1,0 +1,41 @@
+@import "ui-variables";
+
+/**
+ * Git Flow specific styling.
+ */
+
+// Variables for Git Flow, feel free to overwrite
+@text-color-flow-feature: @text-color-success;
+@text-color-flow-release: @text-color-warning;
+@text-color-flow-hotfix: @text-color-error;
+@text-color-flow-develop: @text-color-info;
+@text-color-flow-master: @text-color-subtle;
+
+// NOTE this is really deeply nested :/
+.project-root .header.list-item .tree-view-git-status {
+  .branch-label__prefix,
+  .branch-label__icon {
+    &--feature {
+      color: @text-color-flow-feature;
+    }
+    &--release {
+      color: @text-color-flow-release;
+    }
+    &--hotfix {
+      color: @text-color-flow-hotfix;
+    }
+    &--develop {
+      color: @text-color-flow-develop;
+    }
+    &--master {
+      color: @text-color-flow-master;
+    }
+  }
+  .branch-label__icon,
+  .branch-label__icon:before {
+    width: auto;
+    padding-left: .1rem;
+    margin-right: .2rem;
+    font-size: 1rem;
+  }
+}
