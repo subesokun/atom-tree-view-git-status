@@ -38,11 +38,11 @@ module.exports = TreeViewGitStatus =
         enabled:
           order: 1
           type: 'boolean'
-          default: false
+          default: true
           title: 'Enable Git Flow'
           description:
-            'Git Flow support requires you to [install Git Flow](https://github.com/petervanderdoes/gitflow-avh/wiki/Installation) run `git flow init` on the ' +
-            'repository you want to use.'
+            'Git Flow support requires you to [install Git Flow](https://github.com/petervanderdoes/gitflow-avh/wiki/Installation) and run `git flow init` on the ' +
+            'repository you want to work on'
         display_type:
           order: 2
           type: 'integer'
@@ -65,15 +65,19 @@ module.exports = TreeViewGitStatus =
   treeViewUI: null
   ignoredRepositories: null
   emitter: null
+  isActivatedFlag: false
 
   activate: ->
     @emitter = new Emitter
     @ignoredRepositories = new Map
     @subscriptionsOfCommands = new CompositeDisposable
     @subscriptions = new CompositeDisposable
+    # Wait unless all packages have been actiavted and do not forcefully
+    # activate the tree-view. If the tree-view hasn't been activated we
+    # should do nothing.
     @subscriptions.add atom.packages.onDidActivateInitialPackages =>
       @doInitPackage()
-    # Workaround for the isse that "onDidActivateInitialPackages" never gets
+    # Workaround for the issue that "onDidActivateInitialPackages" never gets
     # fired if one or more packages are failing to initialize
     @activateInterval = setInterval (=>
       @doInitPackage()
@@ -86,6 +90,7 @@ module.exports = TreeViewGitStatus =
     return unless treeView and not @active
 
     clearInterval(@activateInterval)
+    @activateInterval = null
     @treeView = treeView
     @active = true
 
@@ -95,6 +100,7 @@ module.exports = TreeViewGitStatus =
         @toggle()
     autoToggle = atom.config.get 'tree-view-git-status.autoToggle'
     @toggle() if autoToggle
+    @isActivatedFlag = true
     @emitter.emit 'did-activate'
 
   deactivate: ->
@@ -116,6 +122,9 @@ module.exports = TreeViewGitStatus =
     @emitter?.clear()
     @emitter?.dispose()
     @emitter = null
+
+  isActivated: ->
+    return @isActivatedFlag
 
   toggle: ->
     return unless @active
@@ -147,6 +156,10 @@ module.exports = TreeViewGitStatus =
       if atom.packages.getActivePackage('tree-view')?
         treeViewPkg = atom.packages.getActivePackage('tree-view')
       # TODO Check for support of Nuclide Tree View
+      # Atom >= 1.18.0
+      if treeViewPkg?.mainModule?.getTreeViewInstance?
+        return treeViewPkg.mainModule.getTreeViewInstance()
+      # Atom < 1.18.0
       if treeViewPkg?.mainModule?.treeView?
         return treeViewPkg.mainModule.treeView
       else
