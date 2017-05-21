@@ -21,28 +21,26 @@ describe "TreeViewGitStatus", ->
     workspaceElement = atom.views.getView(atom.workspace)
     jasmine.attachToDOM(workspaceElement)
 
-    waitsForPromise ->
-      return atom.packages.activatePackage('tree-view').then () ->
-        return atom.packages.activatePackage('tree-view-git-status')
-        .then((pkg) ->
-          treeViewGitStatus = pkg.mainModule
+    # Wait unless the tree-view has been loaded an the
+    # tree-view-git-status was toggled
+    waitForPackageActivation('tree-view')
+    waitForPackageActivation('tree-view-git-status', (pkg) ->
+        return if pkg.mainModule.isActivated()
+        waitsForPromise -> awaitCallback(pkg.mainModule,
+          pkg.mainModule.onDidActivate)
+      )
 
-          # TODO Remove enforcing trailing slashes... currently
-          # repo path comparison will fail on Windows as all paths
-          # are containing trailing slashes but the fixtures path
-          # contains backslashes...
-          treeViewGitStatus.ignoreRepository(
-            (path.resolve(fixturesPath, '..','..').split path.sep).join('/'))
-        )
-        .then(() ->
-          return new Promise (resolve, reject) ->
-            treeView = treeViewGitStatus.getTreeView()
-            resolve() if treeView?
-            activateSubscription = treeViewGitStatus.onDidActivate () ->
-              treeView = treeViewGitStatus.getTreeView()
-              activateSubscription.dispose()
-              resolve()
-        )
+    runs ->
+      treeViewGitStatus = atom.packages.getActivePackage('tree-view-git-status').mainModule
+      # Use the getTreeView() to be safe due to different Atom versions
+      treeView = treeViewGitStatus.getTreeView()
+
+      # TODO Remove enforcing trailing slashes...
+      # The repo path comparison will fail on Windows as all paths
+      # are containing trailing slashes but the fixtures path
+      # contains backslashes...
+      treeViewGitStatus.ignoreRepository(
+        (path.resolve(fixturesPath, '..','..').split path.sep).join('/'))
 
   afterEach ->
     temp.cleanup()
@@ -52,8 +50,8 @@ describe "TreeViewGitStatus", ->
     expect(treeView).toBeDefined()
 
   it 'adds valid Git repositories', () ->
-    # TODO Figure out why only this test triggers a
-    # Uncaught (in promise) Error: Repository has been destroyed(…)
+    # TODO Figure out why only this test triggers an
+    # uncaught promise error: Repository has been destroyed(…)
     # error... NOTE: adding idle(defaultDelay) avoids this issue... but why?
     prepareProject('git-project')
     runs () ->
@@ -134,6 +132,21 @@ describe "TreeViewGitStatus", ->
       for root in treeView.roots
         expect(root.classList.contains('status-modified')).toBe(false)
         expect(root.classList.contains('status-added')).toBe(false)
+
+  awaitCallback = (scope, handler) ->
+    return new Promise (resolve, reject) ->
+      subscription = handler.call(scope, () ->
+          subscription.dispose() if subscription?.dispose?
+          resolve()
+        )
+
+  waitForPackageActivation = (pkgName, handler) ->
+    waitsForPromise ->
+      atom.packages.activatePackage(pkgName)
+        .then(->
+            return unless handler
+            handler(atom.packages.getActivePackage(pkgName))
+          )
 
   prepareProject = (repoPath, noGit) ->
     runs () ->
