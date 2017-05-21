@@ -44,7 +44,7 @@ it. By default Octicons are used to indicate the various states of the flow proc
 
 #### Prerequisites
 
-In order to use this feature you to [install Git Flow](https://github.com/petervanderdoes/gitflow-avh/wiki/Installation) and run `git flow init` on the repository you want to work on.
+In order to use this feature you've to [install Git Flow](https://github.com/petervanderdoes/gitflow-avh/wiki/Installation) and run `git flow init` on the repository you want to work on.
 
 ### License
 
