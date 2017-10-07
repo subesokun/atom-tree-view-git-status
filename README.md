@@ -4,7 +4,7 @@
 [![Downloads](https://img.shields.io/apm/dm/tree-view-git-status.svg?style=flat-square)](https://atom.io/packages/tree-view-git-status)
 [![Status Linux & OSX](https://img.shields.io/travis/subesokun/atom-tree-view-git-status.svg?style=flat-square&label=Linux%20%26%20OSX)](https://travis-ci.org/subesokun/atom-tree-view-git-status)
 [![Status Windows](https://img.shields.io/appveyor/ci/subesokun/atom-tree-view-git-status.svg?style=flat-square&label=Windows)](https://ci.appveyor.com/project/subesokun/atom-tree-view-git-status)
-[![Dependency Status](https://img.shields.io/david/subesokun/atom-tree-view-git-status.svg?style=flat-square)](https://david-dm.org/subesokun/atom-tree-view-git-status)
+[![Dependency Status](https://img.shields.io/david/subesokun/atom-tree-view-git-status.svg?style=flat-square)](https://david-dm.org/subesokun/atom-tree-view-git-status) [![NSP Status](https://nodesecurity.io/orgs/subesokun/projects/85dd4fee-8ecc-46f9-918d-5b4cf5777398/badge)](https://nodesecurity.io/orgs/subesokun/projects/85dd4fee-8ecc-46f9-918d-5b4cf5777398)
 
 Show the Git repository status in the Atom tree-view.
 
