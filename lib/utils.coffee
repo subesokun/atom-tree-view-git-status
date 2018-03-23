@@ -1,3 +1,4 @@
+fs = require 'fs'
 path = require 'path'
 
 normalizePath = (repoPath) ->
@@ -9,9 +10,9 @@ normalizePath = (repoPath) ->
     # For now just strip away the /private part.
     # Using the fs.realPath function to avoid this issue isn't such a good
     # idea because it tries to access that path and in case it's not
-    # existing path an error gets thrown + it's slow due to fs access.
+    # existing path an error gets thrown
     normPath = normPath.replace(/^\/private/, '')
-  return normPath.replace(/[\\\/]$/, '')
+  return fs.realpathSync(normPath.replace(/[\\\/]$/, ''))
 
 getRootDirectoryStatus = (repo) ->
   promise = Promise.resolve()
