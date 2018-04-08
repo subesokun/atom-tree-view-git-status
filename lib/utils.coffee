@@ -1,17 +1,21 @@
+fs = require 'fs'
 path = require 'path'
 
 normalizePath = (repoPath) ->
-  normPath = path.normalize repoPath
+  normPath = (path.normalize repoPath).replace(/[\\\/]$/, '')
   if process.platform is 'darwin'
     # For some reason the paths returned by the tree-view and
     # git-utils are sometimes "different" on Darwin platforms.
     # E.g. /private/var/... (real path) !== /var/... (symlink)
     # For now just strip away the /private part.
-    # Using the fs.realPath function to avoid this issue isn't such a good
-    # idea because it tries to access that path and in case it's not
-    # existing path an error gets thrown + it's slow due to fs access.
     normPath = normPath.replace(/^\/private/, '')
-  return normPath.replace(/[\\\/]$/, '')
+  try
+    # Finally try to resolve the real path to avoid issues with symlinks.
+    return fs.realpathSync(normPath)
+  catch e
+    # If the path doesn't exists `realpath` throws an error.
+    # In that case just return the normalized path.
+    return normPath
 
 getRootDirectoryStatus = (repo) ->
   promise = Promise.resolve()
