@@ -4,6 +4,9 @@ fs = require 'fs-plus'
 utils = require './utils'
 GitFlowHandler = require './gitflowhandler'
 
+isRoot = (x) -> x && x.matches '[is=tree-view-directory].project-root'
+rootNodes = (x) -> Array.from(x).filter(isRoot)
+
 module.exports = class TreeViewUI
 
   roots: null
@@ -34,11 +37,21 @@ module.exports = class TreeViewUI
     @subscribeUpdateConfigurations()
     @subscribeUpdateTreeView()
 
+    # This observer may replace the need to subscribe to the tree-view's other events
+    @observer = new MutationObserver((mutations) =>
+      added = []
+      added.push.apply added, rootNodes(m.addedNodes) for m in mutations
+      if added.length > 0
+        @updateRoots true
+    )
+    @observer.observe(@treeView.list, { childList: true });
+
     # Trigger inital update of all root nodes
     @updateRoots true
 
   destruct: ->
     @clearTreeViewRootMap()
+    @observer.disconnect()
     @subscriptions?.dispose()
     @subscriptions = null
     @treeViewRootsMap = null
