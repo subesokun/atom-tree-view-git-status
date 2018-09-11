@@ -51,7 +51,7 @@ module.exports = class TreeViewUI
 
   destruct: ->
     @clearTreeViewRootMap()
-    @observer.disconnect()
+    @observer?.disconnect()
     @subscriptions?.dispose()
     @subscriptions = null
     @treeViewRootsMap = null
