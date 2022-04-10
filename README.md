@@ -2,8 +2,7 @@
 
 [![Version](https://img.shields.io/apm/v/tree-view-git-status.svg?style=flat-square)](https://atom.io/packages/tree-view-git-status)
 [![Downloads](https://img.shields.io/apm/dm/tree-view-git-status.svg?style=flat-square)](https://atom.io/packages/tree-view-git-status)
-[![Status Linux & OSX](https://img.shields.io/travis/subesokun/atom-tree-view-git-status.svg?style=flat-square&label=Linux%20%26%20OSX)](https://travis-ci.org/subesokun/atom-tree-view-git-status)
-[![Status Windows](https://img.shields.io/appveyor/ci/subesokun/atom-tree-view-git-status.svg?style=flat-square&label=Windows)](https://ci.appveyor.com/project/subesokun/atom-tree-view-git-status)
+[![CI](https://github.com/subesokun/atom-tree-view-git-status/actions/workflows/main.yml/badge.svg)](https://github.com/subesokun/atom-tree-view-git-status/actions/workflows/main.yml)
 
 Show the Git repository status in the Atom tree-view.
 
