@@ -1,7 +1,7 @@
 # Tree View Git Status package
 
-[![Version](https://img.shields.io/apm/v/tree-view-git-status.svg?style=flat-square)](https://atom.io/packages/tree-view-git-status)
-[![Downloads](https://img.shields.io/apm/dm/tree-view-git-status.svg?style=flat-square)](https://atom.io/packages/tree-view-git-status)
+[![Version](https://img.shields.io/apm/v/tree-view-git-status.svg)](https://atom.io/packages/tree-view-git-status)
+[![Downloads](https://img.shields.io/apm/dm/tree-view-git-status.svg)](https://atom.io/packages/tree-view-git-status)
 [![CI](https://github.com/subesokun/atom-tree-view-git-status/actions/workflows/main.yml/badge.svg)](https://github.com/subesokun/atom-tree-view-git-status/actions/workflows/main.yml)
 
 Show the Git repository status in the Atom tree-view.
