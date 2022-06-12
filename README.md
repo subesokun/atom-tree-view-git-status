@@ -1,8 +1,9 @@
 # Tree View Git Status package
 
+> This project is no longer maintained as Atom and all repositories under Atom will be archived on December 15, 2022. Learn more in the [official announcement](https://github.blog/2022-06-08-sunsetting-atom/). Thank you for your interest in this project and your support!
+
 [![Version](https://img.shields.io/apm/v/tree-view-git-status.svg)](https://atom.io/packages/tree-view-git-status)
 [![Downloads](https://img.shields.io/apm/dm/tree-view-git-status.svg)](https://atom.io/packages/tree-view-git-status)
-[![CI](https://github.com/subesokun/atom-tree-view-git-status/actions/workflows/main.yml/badge.svg)](https://github.com/subesokun/atom-tree-view-git-status/actions/workflows/main.yml)
 
 Show the Git repository status in the Atom tree-view.
 
